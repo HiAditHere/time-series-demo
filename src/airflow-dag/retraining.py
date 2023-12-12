@@ -3,10 +3,10 @@ from airflow import DAG
 from airflow.operators.bash_operator import BashOperator
 
 LOCAL_PREPROCESS_FILE_PATH = '/tmp/preprocess.py'
-GITHUB_PREPROCESS_RAW_URL = 'https://raw.githubusercontent.com/shankar-dh/Timeseries/main/src/data_preprocess.py'  # Adjust the path accordingly
+GITHUB_PREPROCESS_RAW_URL = 'https://raw.githubusercontent.com/HiAditHere/time-series-demo/main/src/data_preprocess.py'  # Adjust the path accordingly
 
 LOCAL_TRAIN_FILE_PATH = '/tmp/train.py'
-GITHUB_TRAIN_RAW_URL = 'https://raw.githubusercontent.com/shankar-dh/Timeseries/main/src/trainer/train.py'  # Adjust the path accordingly
+GITHUB_TRAIN_RAW_URL = 'https://raw.githubusercontent.com/HiAditHere/time-series-demo/main/src/trainer/train.py'  # Adjust the path accordingly
 
 default_args = {
     'owner': 'Time_Series_IE7374',
