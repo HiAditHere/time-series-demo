@@ -31,6 +31,20 @@ def initialize_client_and_bucket(bucket_name):
     bucket = storage_client.get_bucket(bucket_name)
     return storage_client, bucket
 
+def load_stats(bucket, SCALER_BLOB_NAME='scaler/normalization.json'):
+    """
+    Load normalization stats from a blob in the bucket.
+    Args:
+        bucket (Bucket): The bucket object.
+        SCALER_BLOB_NAME (str): The name of the blob containing the stats.
+    Returns:
+        dict: The loaded stats.
+    """
+    scaler_blob = bucket.blob(SCALER_BLOB_NAME)
+    stats_str = scaler_blob.download_as_text()
+    stats = json.loads(stats_str)
+    return stats
+
 def load_model(bucket, bucket_name):
     """
     Fetch and load the latest model from the bucket.
@@ -66,6 +80,22 @@ def fetch_latest_model(bucket_name, prefix="model/model_"):
     latest_blob_name = sorted(blob_names, key=lambda x: x.split('_')[-1], reverse=True)[0]
 
     return latest_blob_name
+
+def normalize_data(instance, stats):
+    """
+    Normalizes a data instance using provided statistics.
+    Args:
+        instance (dict): A dictionary representing the data instance.
+        stats (dict): A dictionary with 'mean' and 'std' keys for normalization.
+    Returns:
+        dict: A dictionary representing the normalized instance.
+    """
+    normalized_instance = {}
+    for feature, value in instance.items():
+        mean = stats["mean"].get(feature, 0)
+        std = stats["std"].get(feature, 1)
+        normalized_instance[feature] = (value - mean) / std
+    return normalized_instance
 
 @app.route(os.environ['AIP_HEALTH_ROUTE'], methods=['GET'])
 def health_check():

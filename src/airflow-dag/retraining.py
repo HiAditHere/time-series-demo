@@ -10,6 +10,7 @@ from transaction_gap import transaction_gap
 from card_frequency import card_frequency
 from drop import drop_col
 from categorical_column_encoding import encode_categorical_col
+from normalize_numeric import normalize
 import gcfs
 import pandas as pd
 import pickle
@@ -214,7 +215,15 @@ categorical_columns_task = PythonOperator(
     dag = dag, 
 )
 
+normalize_task = PythonOperator(
+    task_id = 'normalize_task',
+    python_callable = normalize,
+    op_args = [categorical_columns_task.output],
+    dag = dag, 
+)
+
+
 #load_data_task >> date_column_task >> merchant_column_task >> dob_column_task >> distance_task >> ohe_task >> transaction_gap_task >> card_frequency_task >> drop_task >> categorical_columns_task >> write_to_file
 
 # Setting up dependencies
-pull_preprocess_script >> pull_train_script >> run_preprocess_script >> load_data_task >> date_column_task >> merchant_column_task >> dob_column_task >> distance_task >> ohe_task >> transaction_gap_task >> card_frequency_task >> drop_task >> categorical_columns_task >> run_train_script
+pull_preprocess_script >> pull_train_script >> run_preprocess_script >> load_data_task >> date_column_task >> merchant_column_task >> dob_column_task >> distance_task >> ohe_task >> transaction_gap_task >> card_frequency_task >> drop_task >> categorical_columns_task >> normalize_task >> run_train_script

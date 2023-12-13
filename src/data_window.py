@@ -27,10 +27,8 @@ def update_datasets(monthly_dataframes, train_data_gcs_path, test_data_gcs_path)
             test_data = pd.read_csv(f)
     except FileNotFoundError:
         # If files do not exist, initialize the first two months as training and the third month as testing
-        train_data = monthly_dataframes[sorted_months[0]]
-        for i in range(1,9):
-            train_data = pd.concat([train_data, monthly_dataframes[sorted_months[i]]], ignore_index=True)
-        test_data = monthly_dataframes[sorted_months[10]]
+        train_data = pd.concat([monthly_dataframes[sorted_months[0]], monthly_dataframes[sorted_months[1]]], ignore_index=True)
+        test_data = monthly_dataframes[sorted_months[2]]
         next_month_index = 3  # Start from the fourth month next time
     else:
         # Find the last month in the test data to determine what to add next
@@ -61,8 +59,10 @@ def main():
     # air_quality_data = pd.read_excel(os.path.join("..", "data", "raw_data", "AirQualityUCI.xlsx"))
     gcs_train_data_path = "gs://credit-card-fraud-detection-group5/data/fraudTrain.csv"
     credit_card_fraud_data = pd.read_csv(gcs_train_data_path)
+
+    print(type(credit_card_fraud_data['trans_date_trans_time'].iloc[0]))
     
-    credit_card_fraud_data['YearMonth'] = credit_card_fraud_data['trans_date_trans_time'].dt.to_period('M')
+    credit_card_fraud_data['YearMonth'] = pd.to_datetime(credit_card_fraud_data['trans_date_trans_time']).dt.to_period('M')
     monthly_groups = credit_card_fraud_data.groupby('YearMonth')
     monthly_dataframes = {str(period): group.drop('YearMonth', axis=1) for period, group in monthly_groups}
 

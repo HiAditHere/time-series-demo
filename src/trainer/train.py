@@ -3,7 +3,7 @@ from datetime import datetime
 import pytz
 import pandas as pd
 from sklearn.model_selection import train_test_split
-from sklearn.ensemble import RandomForestRegressor
+from sklearn.ensemble import RandomForestClassifier
 import joblib
 import json
 import gcsfs
@@ -46,7 +46,7 @@ def train_model(X_train, y_train):
     Returns:
     RandomForestRegressor: The trained Random Forest model.
     """
-    model = RandomForestRegressor(n_estimators=100, random_state=42)
+    model = RandomForestClassifier(n_estimators=100, random_state=42)
     model.fit(X_train, y_train)
     return model
 
@@ -72,7 +72,7 @@ def main():
     and uploading the model to Google Cloud Storage.
     """
     # Load and transform data
-    gcs_train_data_path = "gs://credit-card-fraud-detection-group5/data/train/train_data.csv"
+    gcs_train_data_path = "gs://credit-card-fraud-detection-group5/data/train/clean_train_data.csv"
     df = load_data(gcs_train_data_path)
     X_train, X_test, y_train, y_test = train_test_split(df.drop(columns=['trans_date_trans_time', 'is_fraud']), df['is_fraud'], test_size=0.2)
 

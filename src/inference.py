@@ -47,21 +47,22 @@ def predict_custom_trained_model(
 
 
 predict_custom_trained_model(
-    project="338339185481",
-    endpoint_id="8578609622233907200",
+    project="851966923939",
+    endpoint_id="8107420511220269056",
     location="us-east1",
     instances= {
-            "PT08.S1(CO)": 0.651435622,
-            "NMHC(GT)": 0.154088375,
-            "C6H6(GT)": 0.198980682,
-            "PT08.S2(NMHC)": 0.406771327,
-            "NOx(GT)": 0.608617903,
-            "PT08.S3(NOx)": 0.340316247,
-            "NO2(GT)": 0.604898307,
-            "PT08.S4(NO2)": 0.354166125,
-            "PT08.S5(O3)": 0.670583278,
-            "T": 0.080010396,
-            "RH": 0.098031541,
-            "AH": 0.146104239
+            "cc_freq": -0.49281,
+            "city": -0.979,
+            "job": -0.4493,
+            "age": -0.73624,
+            "gender_M": 0,
+            "merchant": 2.217,
+            "category": 1.507,
+            "distance_km": 1.77,
+            "month": -0.974,
+            "day": -0.816,
+            "hour": -0.123,
+            "hours_diff_bet_trans": -0.71278,
+            "amt": -0.44261
         }
 )

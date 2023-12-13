@@ -2,8 +2,8 @@ FROM python:3.9-slim
 
 WORKDIR /
 
-ENV AIP_STORAGE_URI=gs://time-series-demo/model
-ENV BUCKET_NAME=time-series-demo
+ENV AIP_STORAGE_URI=gs://credit-card-fraud-detection-group5/model
+ENV BUCKET_NAME=credit-card-fraud-detection-group5
 
 COPY trainer /trainer
 
