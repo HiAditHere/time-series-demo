@@ -11,7 +11,7 @@ BASE_OUTPUT_DIR =  os.getenv("BASE_OUTPUT_DIR")
 BUCKET = os.getenv("AIP_MODEL_DIR")  # Should be same as AIP_STORAGE_URI specified in the docker file
 CONTAINER_URI = os.getenv("CONTAINER_URI")
 MODEL_SERVING_CONTAINER_IMAGE_URI = os.getenv("MODEL_SERVING_CONTAINER_IMAGE_URI")
-DISPLAY_NAME = 'timeseriesmlopse2e'
+DISPLAY_NAME = 'credit_card_fraud_detection'
 SERVICE_ACCOUNT_EMAIL = os.getenv("SERVICE_ACCOUNT_EMAIL")
 
 def initialize_aiplatform(project_id, region, bucket):

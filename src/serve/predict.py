@@ -31,20 +31,6 @@ def initialize_client_and_bucket(bucket_name):
     bucket = storage_client.get_bucket(bucket_name)
     return storage_client, bucket
 
-def load_stats(bucket, SCALER_BLOB_NAME='scaler/normalization_stats.json'):
-    """
-    Load normalization stats from a blob in the bucket.
-    Args:
-        bucket (Bucket): The bucket object.
-        SCALER_BLOB_NAME (str): The name of the blob containing the stats.
-    Returns:
-        dict: The loaded stats.
-    """
-    scaler_blob = bucket.blob(SCALER_BLOB_NAME)
-    stats_str = scaler_blob.download_as_text()
-    stats = json.loads(stats_str)
-    return stats
-
 def load_model(bucket, bucket_name):
     """
     Fetch and load the latest model from the bucket.
@@ -81,23 +67,6 @@ def fetch_latest_model(bucket_name, prefix="model/model_"):
 
     return latest_blob_name
 
-
-def normalize_data(instance, stats):
-    """
-    Normalizes a data instance using provided statistics.
-    Args:
-        instance (dict): A dictionary representing the data instance.
-        stats (dict): A dictionary with 'mean' and 'std' keys for normalization.
-    Returns:
-        dict: A dictionary representing the normalized instance.
-    """
-    normalized_instance = {}
-    for feature, value in instance.items():
-        mean = stats["mean"].get(feature, 0)
-        std = stats["std"].get(feature, 1)
-        normalized_instance[feature] = (value - mean) / std
-    return normalized_instance
-
 @app.route(os.environ['AIP_HEALTH_ROUTE'], methods=['GET'])
 def health_check():
     """Health check endpoint that returns the status of the server.
@@ -119,20 +88,21 @@ def predict():
     # Normalize and format each instance
     formatted_instances = []
     for instance in request_instances:
-        normalized_instance = normalize_data(instance, stats)
+        normalized_instance = instance
         formatted_instance = [
-            normalized_instance['PT08.S1(CO)'],
-            normalized_instance['NMHC(GT)'],
-            normalized_instance['C6H6(GT)'],
-            normalized_instance['PT08.S2(NMHC)'],
-            normalized_instance['NOx(GT)'],
-            normalized_instance['PT08.S3(NOx)'],
-            normalized_instance['NO2(GT)'],
-            normalized_instance['PT08.S4(NO2)'],
-            normalized_instance['PT08.S5(O3)'],
-            normalized_instance['T'],
-            normalized_instance['RH'],
-            normalized_instance['AH']
+            normalized_instance['cc_freq'],
+            normalized_instance['city'],
+            normalized_instance['job'],
+            normalized_instance['age'],
+            normalized_instance['gender_M'],
+            normalized_instance['merchant'],
+            normalized_instance['category'],
+            normalized_instance['distance_km'],
+            normalized_instance['month'],
+            normalized_instance['day'],
+            normalized_instance['hour'],
+            normalized_instance['hours_diff_bet_trans'],
+            normalized_instance['amt']
         ]
         formatted_instances.append(formatted_instance)
 
@@ -144,7 +114,6 @@ def predict():
 
 project_id, bucket_name = initialize_variables()
 storage_client, bucket = initialize_client_and_bucket(bucket_name)
-stats = load_stats(bucket)
 model = load_model(bucket, bucket_name)
 
 

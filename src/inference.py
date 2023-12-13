@@ -47,8 +47,8 @@ def predict_custom_trained_model(
 
 
 predict_custom_trained_model(
-    project="497741562136",
-    endpoint_id="1974151137439252480",
+    project="338339185481",
+    endpoint_id="8578609622233907200",
     location="us-east1",
     instances= {
             "PT08.S1(CO)": 0.651435622,

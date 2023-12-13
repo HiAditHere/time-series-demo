@@ -31,82 +31,8 @@ def load_data(gcs_train_data_path):
     """
     with fs.open(gcs_train_data_path) as f:
         df = pd.read_csv(f)
-
-    # Columns are assumed to be in the correct order
-    column_names = [
-        'Date', 'Time', 'CO(GT)', 'PT08.S1(CO)', 'NMHC(GT)', 'C6H6(GT)',
-        'PT08.S2(NMHC)', 'NOx(GT)', 'PT08.S3(NOx)', 'NO2(GT)', 'PT08.S4(NO2)',
-        'PT08.S5(O3)', 'T', 'RH', 'AH'
-    ]
-    df.columns = column_names
     
     return df
-
-def normalize_data(data, stats):
-    """
-    Normalizes the data using the provided statistics.
-
-    Parameters:
-    data (DataFrame): The data to be normalized.
-    stats (dict): A dictionary containing the feature means and standard deviations.
-
-    Returns:
-    DataFrame: A pandas DataFrame containing the normalized data.
-    """
-    normalized_data = {}
-    for column in data.columns:
-        mean = stats["mean"][column]
-        std = stats["std"][column]
-        
-        normalized_data[column] = [(value - mean) / std for value in data[column]]
-    
-    # Convert normalized_data dictionary back to a DataFrame
-    normalized_df = pd.DataFrame(normalized_data, index=data.index)
-    return normalized_df
-
-def data_transform(df):
-    """
-    Transforms the data by setting a datetime index, and splitting it into 
-    training and validation sets. It also normalizes the features.
-    
-    Parameters:
-    df (DataFrame): The DataFrame to be transformed.
-    
-    Returns:
-    tuple: A tuple containing normalized training features, test features,
-           normalized training labels, and test labels.
-    """
-    
-    df['Datetime'] = pd.to_datetime(df['Date'] + ' ' + df['Time'])
-    df.set_index('Datetime', inplace=True)
-    df.drop(columns=['Date', 'Time'], inplace=True)
-
-    # Splitting the data into training and validation sets (80% training, 20% validation)
-    train, test = train_test_split(df, test_size=0.2, shuffle=False)
-
-    # Separating features and target variable
-    X_train = train.drop(columns=['CO(GT)'])
-    y_train = train['CO(GT)']
-
-    X_test = test.drop(columns=['CO(GT)'])
-    y_test = test['CO(GT)']
-
-     # Get the json from GCS
-    client = storage.Client()
-    bucket_name = os.getenv("BUCKET_NAME")
-    blob_path = 'scaler/normalization_stats.json' # Change this to your blob path where the data is stored
-    bucket = client.get_bucket("time-series-demo")
-    blob = bucket.blob(blob_path)
-
-    # Download the json as a string
-    data = blob.download_as_string()
-    stats = json.loads(data)
-
-    # Normalize the data using the statistics from the training set
-    X_train_scaled = normalize_data(X_train, stats)
-    y_train_scaled = (y_train - stats["mean"]['CO(GT)']) / stats["std"]['CO(GT)']
-    
-    return X_train_scaled, X_test, y_train_scaled, y_test
 
 
 def train_model(X_train, y_train):
@@ -146,9 +72,9 @@ def main():
     and uploading the model to Google Cloud Storage.
     """
     # Load and transform data
-    gcs_train_data_path = "gs://time-series-demo/data/train/train_data.csv"
+    gcs_train_data_path = "gs://credit-card-fraud-detection-group5/data/train/train_data.csv"
     df = load_data(gcs_train_data_path)
-    X_train, X_test, y_train, y_test = data_transform(df)
+    X_train, X_test, y_train, y_test = train_test_split(df.drop(columns=['trans_date_trans_time', 'is_fraud']), df['is_fraud'], test_size=0.2)
 
     # Train the model
     model = train_model(X_train, y_train)
